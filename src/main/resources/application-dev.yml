@@ -1,0 +1,33 @@
+#数据源配置
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@10.39.251.141:1521:barcode
+    username: hoau
+    password: hoau
+    driver-class-name: oracle.jdbc.driver.OracleDriver
+  rabbitmq:
+    host: 10.39.251.171,10.39.251.172
+    port: 6673
+    username: develop
+    password: develop
+
+##Mybatis配置
+mybatis:
+  typeAliasesPackage: com.hoau.barcode.mq.entity
+
+server:
+  port: 8077
+
+barCodeNew:
+  log:
+    filter:
+      enable: true
+    kafka:
+      servers: bootstrap.servers=10.39.251.26:9092,10.39.251.27:9092
+
+
+
+
+
+
+

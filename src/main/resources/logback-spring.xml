@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <springProperty scope="context" name="bootstrap.servers" source="barCodeNew.log.kafka.servers"/>
+
+    <!-- 测试环境.开发环境使用默认的控制台输出，如果多个环境使用相同的配置，用多个使用逗号隔开. -->
+    <springProfile name="dev">
+        <!--输出到控制台-->
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+        <!--输出到kafka-->
+        <appender name="KafkaAppender" class="com.github.danielwegener.logback.kafka.KafkaAppender">
+            <encoder class="com.github.danielwegener.logback.kafka.encoding.LayoutKafkaMessageEncoder">
+                <layout class="net.logstash.logback.layout.LogstashLayout">
+                    <includeContext>true</includeContext>
+                    <includeCallerData>true</includeCallerData>
+                    <customFields>{"system":"test"}</customFields>
+                    <fieldNames class="net.logstash.logback.fieldnames.ShortenedFieldNames"/>
+                </layout>
+                <charset>UTF-8</charset>
+            </encoder>
+            <!--kafka topic 需要与配置文件里面的topic一致-->
+            <topic>applog</topic>
+            <keyingStrategy class="com.github.danielwegener.logback.kafka.keying.HostNameKeyingStrategy"/>
+            <deliveryStrategy class="com.github.danielwegener.logback.kafka.delivery.AsynchronousDeliveryStrategy"/>
+            <producerConfig>${bootstrap.servers}</producerConfig>
+
+            <appender-ref ref="CONSOLE"/>
+        </appender>
+
+        <!--输出SQL日志-->
+        <logger name="com.hoau" level="debug" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="KafkaAppender"/>
+        </logger>
+        <root>
+            <level value="INFO"/>
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="KafkaAppender"/>
+        </root>
+    </springProfile>
+
+</configuration>
